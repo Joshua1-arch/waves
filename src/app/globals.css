@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-brand-cream: #EDE8E3;
+  --color-brand-black: #1A1A1A;
+  --color-brand-gold: #C9A96E;
+  --color-brand-white: #FAF8F5;
+  --color-brand-border: rgba(26, 26, 26, 0.12);
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-playfair);
+  --tracking-wider: 0.12em;
+  --tracking-widest: 0.18em;
+}
+
+@layer base {
+  * {
+    @apply border-brand-border;
+  }
+
+  html {
+    @apply scroll-smooth bg-brand-cream text-brand-black;
+  }
+
+  body {
+    @apply min-h-screen bg-brand-cream text-brand-black font-sans antialiased;
+  }
+
+  ::selection {
+    @apply bg-brand-gold/25 text-brand-black;
+  }
+
+  a,
+  button,
+  input,
+  textarea,
+  select {
+    @apply transition-colors duration-300;
+  }
+
+  button,
+  [role="button"] {
+    @apply cursor-pointer;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .section-shell {
+    @apply mx-auto w-full max-w-[1440px] px-6 sm:px-8 lg:px-12;
+  }
+
+  .section-space {
+    @apply py-16 sm:py-20 lg:py-28;
+  }
+
+  .eyewear-grid {
+    @apply grid gap-6 md:grid-cols-2 xl:grid-cols-4;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
