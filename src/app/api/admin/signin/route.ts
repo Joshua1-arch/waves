@@ -52,6 +52,15 @@ export async function POST(request: Request) {
       role: "admin",
     });
 
+    console.log("[admin/signin] setting admin auth cookie", {
+      cookieName: "wave_admin_auth_token",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7,
+      hasJwtSecret: Boolean(process.env.JWT_SECRET),
+    });
+
     await setAdminAuthCookie(token);
 
     return apiSuccess({
@@ -63,7 +72,12 @@ export async function POST(request: Request) {
         createdAt: user.createdAt,
       },
     });
-  } catch {
+  } catch (error) {
+    console.error("[admin/signin] unable to sign in", {
+      error: error instanceof Error ? error.message : "Unknown error",
+      hasJwtSecret: Boolean(process.env.JWT_SECRET),
+      nodeEnv: process.env.NODE_ENV,
+    });
     return apiError("Unable to sign in to admin.", { status: 500 });
   }
 }
