@@ -18,7 +18,19 @@ const item = {
   },
 };
 
-export function Hero() {
+interface HeroProps {
+  eyebrow?: string;
+  headline: string;
+  subheadline: string;
+  ctaText: string;
+}
+
+export function Hero({
+  eyebrow = "Architectural Eyewear",
+  headline,
+  subheadline,
+  ctaText,
+}: HeroProps) {
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
       <Image
@@ -41,27 +53,26 @@ export function Hero() {
           variants={item}
           className="mb-4 text-[10px] uppercase tracking-widest"
         >
-          Architectural Eyewear
+          {eyebrow}
         </motion.p>
         <motion.h1
           variants={item}
           className="font-serif text-4xl leading-tight sm:text-5xl md:text-6xl"
         >
-          See the World Differently
+          {headline}
         </motion.h1>
         <motion.p
           variants={item}
           className="mx-auto mt-6 max-w-lg text-sm font-light leading-relaxed text-brand-white/85"
         >
-          Precision frames inspired by modern geometry. Crafted for those who
-          view the world through an architectural lens.
+          {subheadline}
         </motion.p>
         <motion.div
           variants={item}
           className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
         >
           <Link href="/shop">
-            <Button>Shop Collection</Button>
+            <Button>{ctaText}</Button>
           </Link>
           <Link href="/about">
             <Button variant="ghost">Our Story</Button>

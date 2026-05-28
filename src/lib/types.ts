@@ -1,22 +1,21 @@
-export type ProductCategory =
-  | "aviator"
-  | "rectangular"
-  | "round"
-  | "cat-eye";
+export type ProductCategory = string;
 
-export type ProductMaterial = "titanium" | "bio-acetate" | "gold-plated";
+export type ProductMaterial = string;
 
 export interface Product {
   id: string;
   slug: string;
   name: string;
   price: number;
+  salePrice?: number;
   description: string;
   category: ProductCategory;
   material: ProductMaterial;
   colors: string[];
   sizes: string[];
   images: string[];
+  stock: number;
+  inStock: boolean;
   featured?: boolean;
   collection?: string;
 }

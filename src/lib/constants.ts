@@ -23,8 +23,10 @@ export const FOOTER_HELP = [
 
 export const ADMIN_NAV = [
   { href: "/admin", label: "Dashboard", icon: "LayoutDashboard" },
+  { href: "/admin/collections", label: "Collections", icon: "Paintbrush" },
   { href: "/admin/products", label: "Products", icon: "Glasses" },
   { href: "/admin/orders", label: "Orders", icon: "ShoppingCart" },
+  { href: "/admin/appearance", label: "Appearance", icon: "Paintbrush" },
   { href: "/admin/customers", label: "Customers", icon: "Users" },
   { href: "/admin/settings", label: "Settings", icon: "Settings" },
 ] as const;

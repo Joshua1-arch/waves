@@ -2,14 +2,19 @@
 
 import { ProductCard } from "@/components/shop/ProductCard";
 import { SCROLL_REVEAL } from "@/lib/constants";
-import { getBestSellers } from "@/lib/products";
+import type { Product } from "@/lib/types";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef } from "react";
 
-export function BestSellers() {
+export function BestSellers({
+  title,
+  products,
+}: {
+  title: string;
+  products: Product[];
+}) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const products = getBestSellers();
 
   const scroll = (dir: "left" | "right") => {
     if (!scrollRef.current) return;
@@ -24,7 +29,7 @@ export function BestSellers() {
       <div className="section-shell">
         <div className="mb-10 flex items-center justify-between">
           <motion.h2 {...SCROLL_REVEAL} className="font-serif text-3xl">
-            Best Sellers
+            {title}
           </motion.h2>
           <div className="flex gap-2">
             <button

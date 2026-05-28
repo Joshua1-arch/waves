@@ -1,18 +1,110 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { products } from "@/lib/products";
 import { formatPrice } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
-import { Plus } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+
+interface AdminProductListItem {
+  id: string;
+  slug: string;
+  name: string;
+  price: number;
+  salePrice?: number;
+  description: string;
+  category: string;
+  material: string;
+  colors: string[];
+  sizes: string[];
+  images: string[];
+  stock: number;
+  featured?: boolean;
+  collection?: string;
+}
 
 export default function AdminProductsPage() {
-  const [panelOpen, setPanelOpen] = useState(false);
-  const [published, setPublished] = useState(true);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [products, setProducts] = useState<AdminProductListItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState<AdminProductListItem | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadProducts() {
+      try {
+        const response = await fetch("/api/products", {
+          method: "GET",
+          credentials: "same-origin",
+          cache: "no-store",
+        });
+
+        const result = (await response.json()) as {
+          data?: {
+            products?: AdminProductListItem[];
+          };
+          error?: string;
+        };
+
+        if (!response.ok) {
+          throw new Error(result.error ?? "Unable to fetch products.");
+        }
+
+        if (!cancelled) {
+          setProducts(Array.isArray(result.data?.products) ? result.data.products : []);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setProducts([]);
+          toast.error(error instanceof Error ? error.message : "Unable to fetch products.");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void loadProducts();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  async function handleDelete(product: AdminProductListItem) {
+    setDeletingId(product.id);
+
+    try {
+      const response = await fetch(`/api/admin/products/${product.id}`, {
+        method: "DELETE",
+        credentials: "same-origin",
+      });
+
+      const result = (await response.json()) as {
+        data?: {
+          message?: string;
+        };
+        error?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(result.error ?? "Unable to delete product.");
+      }
+
+      setProducts((current) => current.filter((entry) => entry.id !== product.id));
+      setSelectedProduct(null);
+      toast.success(result.data?.message ?? "Product deleted successfully.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to delete product.");
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   return (
     <div>
@@ -23,13 +115,12 @@ export default function AdminProductsPage() {
             Manage catalogue, stock, and publishing status
           </p>
         </div>
-        <Button
-          className="flex items-center gap-2"
-          onClick={() => setPanelOpen(true)}
-        >
-          <Plus className="h-4 w-4" />
-          Add Product
-        </Button>
+        <Link href="/admin/products/new">
+          <Button className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Add Product
+          </Button>
+        </Link>
       </div>
 
       <div className="mt-8 border border-brand-border bg-brand-white">
@@ -41,129 +132,128 @@ export default function AdminProductsPage() {
               <th className="px-6 py-4">Price</th>
               <th className="px-6 py-4">Stock</th>
               <th className="px-6 py-4">Status</th>
+              <th className="px-6 py-4">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {products.map((p) => (
-              <tr key={p.id} className="border-b border-brand-border">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-4">
-                    <div className="relative h-12 w-12 overflow-hidden bg-brand-cream">
-                      <Image
-                        src={p.images[0]}
-                        alt={p.name}
-                        fill
-                        className="object-cover"
-                        sizes="48px"
-                      />
-                    </div>
-                    <span className="font-medium">{p.name}</span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 capitalize">{p.category}</td>
-                <td className="px-6 py-4 text-brand-gold">
-                  {formatPrice(p.price)}
-                </td>
-                <td className="px-6 py-4">24</td>
-                <td className="px-6 py-4">
-                  <span className="bg-brand-gold/20 px-2 py-1 text-[10px] uppercase tracking-widest">
-                    Published
-                  </span>
+            {loading ? (
+              <tr>
+                <td className="px-6 py-8 text-brand-black/50" colSpan={6}>
+                  Loading products...
                 </td>
               </tr>
-            ))}
+            ) : products.length === 0 ? (
+              <tr>
+                <td className="px-6 py-8 text-brand-black/50" colSpan={6}>
+                  No products found in MongoDB.
+                </td>
+              </tr>
+            ) : (
+              products.map((product) => {
+                const isDeleting = deletingId === product.id;
+
+                return (
+                  <tr key={product.id} className="border-b border-brand-border">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-4">
+                        <div className="relative h-12 w-12 overflow-hidden bg-brand-cream">
+                          {product.images[0] ? (
+                            <Image
+                              src={product.images[0]}
+                              alt={product.name}
+                              fill
+                              className="object-cover"
+                              sizes="48px"
+                            />
+                          ) : (
+                            <div className="h-full w-full bg-brand-white" />
+                          )}
+                        </div>
+                        <span className="font-medium">{product.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 capitalize">{product.category}</td>
+                    <td className="px-6 py-4 text-brand-gold">{formatPrice(product.price)}</td>
+                    <td className="px-6 py-4">{product.stock}</td>
+                    <td className="px-6 py-4">
+                      <span className="bg-brand-gold/20 px-2 py-1 text-[10px] uppercase tracking-widest">
+                        {(product.featured ?? false) ? "Featured" : "Published"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-wrap gap-2">
+                        <Link href={`/admin/products/${product.id}/edit`}>
+                          <Button type="button" variant="outline" className="gap-2 px-4 py-2">
+                            <Pencil className="h-3.5 w-3.5" />
+                            Edit
+                          </Button>
+                        </Link>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="gap-2 border-red-200 text-red-700 hover:bg-red-700 hover:text-white"
+                          onClick={() => setSelectedProduct(product)}
+                          disabled={isDeleting}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          Delete
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>
 
       <AnimatePresence>
-        {panelOpen && (
+        {selectedProduct ? (
           <>
             <motion.div
               className="fixed inset-0 z-50 bg-brand-black/40"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setPanelOpen(false)}
+              onClick={() => (deletingId ? null : setSelectedProduct(null))}
             />
-            <motion.aside
-              className="fixed right-0 top-0 z-[60] h-full w-full max-w-lg overflow-y-auto bg-brand-white p-8"
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+            <motion.div
+              className="fixed left-1/2 top-1/2 z-[60] w-full max-w-lg -translate-x-1/2 -translate-y-1/2 border border-brand-border bg-brand-white p-8 shadow-card"
+              initial={{ opacity: 0, scale: 0.96, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 12 }}
+              transition={{ duration: 0.2 }}
             >
-              <h2 className="font-serif text-2xl">Add Product</h2>
-              <form
-                className="mt-8 space-y-6"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setPanelOpen(false);
-                }}
-              >
-                <Input label="Name" name="name" required />
-                <Input label="Price" name="price" type="number" required />
-                <Input label="Stock" name="stock" type="number" required />
-                <Input label="Category" name="category" required />
-                <div>
-                  <label className="text-[10px] uppercase tracking-widest text-brand-black/70">
-                    Description
-                  </label>
-                  <textarea
-                    name="description"
-                    className="mt-2 w-full border border-brand-border p-3 text-sm outline-none focus:ring-2 focus:ring-brand-gold/40"
-                    rows={4}
-                  />
-                </div>
-                <div>
-                  <label className="text-[10px] uppercase tracking-widest text-brand-black/70">
-                    Image
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="mt-2 w-full text-sm"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) setPreview(URL.createObjectURL(file));
-                    }}
-                  />
-                  {preview && (
-                    <div className="relative mt-4 aspect-square w-32 overflow-hidden">
-                      <Image
-                        src={preview}
-                        alt="Upload preview"
-                        fill
-                        className="object-cover"
-                        sizes="128px"
-                      />
-                    </div>
-                  )}
-                </div>
-                <label className="flex items-center gap-3 text-xs uppercase tracking-widest">
-                  <input
-                    type="checkbox"
-                    checked={published}
-                    onChange={(e) => setPublished(e.target.checked)}
-                  />
-                  Published
-                </label>
-                <div className="flex gap-3">
-                  <Button type="submit" fullWidth>
-                    Save Product
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setPanelOpen(false)}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </form>
-            </motion.aside>
+              <p className="text-[10px] uppercase tracking-[0.24em] text-brand-gold">
+                Confirm deletion
+              </p>
+              <h2 className="mt-3 font-serif text-2xl">Delete product</h2>
+              <p className="mt-4 text-sm leading-6 text-brand-black/60">
+                Are you sure you want to delete {selectedProduct.name}? This cannot be undone.
+              </p>
+
+              <div className="mt-8 flex justify-end gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setSelectedProduct(null)}
+                  disabled={Boolean(deletingId)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  className="gap-2 bg-red-700 text-white hover:bg-red-800"
+                  onClick={() => void handleDelete(selectedProduct)}
+                  disabled={Boolean(deletingId)}
+                >
+                  {deletingId === selectedProduct.id ? "Deleting..." : "Delete"}
+                </Button>
+              </div>
+            </motion.div>
           </>
-        )}
+        ) : null}
       </AnimatePresence>
     </div>
   );

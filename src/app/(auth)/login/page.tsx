@@ -7,21 +7,53 @@ import { useAuthStore } from "@/store/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function LoginPage() {
-  const login = useAuthStore((s) => s.login);
   const router = useRouter();
+  const setUser = useAuthStore((state) => state.setUser);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError("");
+
     const fd = new FormData(e.currentTarget);
-    const email = String(fd.get("email"));
-    const password = String(fd.get("password"));
-    if (login(email, password)) {
+    const email = String(fd.get("email") ?? "").trim();
+    const password = String(fd.get("password") ?? "");
+
+    if (!email || !password) {
+      setError("Email and password are required.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/auth/signin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ email, password }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.error || "Invalid credentials.");
+        return;
+      }
+
+      setUser(result.data.user);
+      toast.success("Signin successful. Welcome back.");
       router.push("/");
-    } else {
-      setError("Invalid credentials.");
+    } catch {
+      setError("Unable to sign in.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -55,11 +87,9 @@ export default function LoginPage() {
                 Forgot Password?
               </Link>
             </div>
-            {error && (
-              <p className="text-xs text-red-600">{error}</p>
-            )}
-            <Button type="submit" fullWidth>
-              Sign In
+            {error && <p className="text-xs text-red-600">{error}</p>}
+            <Button type="submit" fullWidth disabled={loading}>
+              {loading ? "Signing In..." : "Sign In"}
             </Button>
           </form>
 

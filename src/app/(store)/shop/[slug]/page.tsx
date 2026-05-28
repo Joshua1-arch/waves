@@ -1,10 +1,28 @@
 import { ProductDetail } from "@/components/shop/ProductDetail";
 import { PageTransition } from "@/components/ui/PageTransition";
-import { getProductBySlug, products } from "@/lib/products";
+import { connectToDatabase } from "@/lib/mongodb";
+import { getProductModel } from "@/lib/models/Product";
+import { mapProductDocumentToViewModel } from "@/lib/product-mappers";
 import { notFound } from "next/navigation";
 
-export function generateStaticParams() {
-  return products.map((p) => ({ slug: p.slug }));
+export async function generateStaticParams() {
+  await connectToDatabase();
+
+  const Product = getProductModel();
+  const productDocuments = await Product.find({}, { slug: 1, _id: 0 }).lean();
+
+  return productDocuments.flatMap((product) => {
+    if (
+      product &&
+      typeof product === "object" &&
+      "slug" in product &&
+      typeof product.slug === "string"
+    ) {
+      return [{ slug: product.slug }];
+    }
+
+    return [];
+  });
 }
 
 export default async function ProductDetailPage({
@@ -13,9 +31,21 @@ export default async function ProductDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
 
-  if (!product) notFound();
+  await connectToDatabase();
+
+  const Product = getProductModel();
+  const productDocument = await Product.findOne({ slug })
+    .populate("collection", "name slug")
+    .lean();
+
+  const product = productDocument
+    ? mapProductDocumentToViewModel(productDocument)
+    : null;
+
+  if (!product) {
+    notFound();
+  }
 
   return (
     <PageTransition>

@@ -6,20 +6,68 @@ import { PageTransition } from "@/components/ui/PageTransition";
 import { useAuthStore } from "@/store/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function SignupPage() {
-  const signup = useAuthStore((s) => s.signup);
   const router = useRouter();
+  const setUser = useAuthStore((state) => state.setUser);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError("");
+
     const fd = new FormData(e.currentTarget);
-    signup(
-      String(fd.get("name")),
-      String(fd.get("email")),
-      String(fd.get("password")),
-    );
-    router.push("/");
+    const name = String(fd.get("name") ?? "").trim();
+    const email = String(fd.get("email") ?? "").trim();
+    const password = String(fd.get("password") ?? "");
+    const confirmPassword = String(fd.get("confirmPassword") ?? "");
+    const agreeToTerms = fd.get("agreeToTerms");
+
+    if (!name || !email || !password || !confirmPassword) {
+      setError("All fields are required.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    if (!agreeToTerms) {
+      setError("You must agree to the terms and conditions.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.error || "Unable to create account.");
+        return;
+      }
+
+      setUser(result.data.user);
+      toast.success("Signup successful. Welcome to Wave & Co.");
+      router.push("/");
+    } catch {
+      setError("Unable to create account.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -40,8 +88,24 @@ export default function SignupPage() {
             <Input label="Full Name" name="name" required />
             <Input label="Email Address" name="email" type="email" required />
             <Input label="Password" name="password" type="password" required />
-            <Button type="submit" fullWidth>
-              Create Account
+            <Input
+              label="Confirm Password"
+              name="confirmPassword"
+              type="password"
+              required
+            />
+            <label className="flex items-start gap-3 text-sm text-brand-black/70">
+              <input
+                type="checkbox"
+                name="agreeToTerms"
+                required
+                className="mt-1 h-4 w-4 border border-brand-border text-brand-gold accent-brand-gold"
+              />
+              <span>I agree to the terms and conditions.</span>
+            </label>
+            {error && <p className="text-xs text-red-600">{error}</p>}
+            <Button type="submit" fullWidth disabled={loading}>
+              {loading ? "Creating Account..." : "Create Account"}
             </Button>
           </form>
 

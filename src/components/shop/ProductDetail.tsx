@@ -13,6 +13,7 @@ export function ProductDetail({ product }: { product: Product }) {
   const [color, setColor] = useState(product.colors[0]);
   const [size, setSize] = useState(product.sizes[0]);
   const addItem = useCartStore((s) => s.addItem);
+  const isOutOfStock = product.inStock === false;
 
   return (
     <div className="grid gap-12 lg:grid-cols-5">
@@ -50,6 +51,11 @@ export function ProductDetail({ product }: { product: Product }) {
               sizes="(max-width:1024px) 100vw, 60vw"
               priority
             />
+            {isOutOfStock ? (
+              <div className="absolute left-4 top-4 z-10 border border-red-200 bg-red-600 px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-white">
+                Out of Stock
+              </div>
+            ) : null}
           </div>
         </div>
       </div>
@@ -62,6 +68,11 @@ export function ProductDetail({ product }: { product: Product }) {
         <p className="mt-4 text-2xl text-brand-gold">
           {formatPrice(product.price)}
         </p>
+        {isOutOfStock ? (
+          <p className="mt-4 inline-flex border border-red-200 bg-red-50 px-3 py-2 text-[10px] uppercase tracking-[0.22em] text-red-700">
+            Out of Stock
+          </p>
+        ) : null}
         <p className="mt-6 text-sm leading-relaxed text-brand-black/70">
           {product.description}
         </p>
@@ -111,7 +122,12 @@ export function ProductDetail({ product }: { product: Product }) {
         <Button
           fullWidth
           className="mt-10"
-          onClick={() =>
+          disabled={isOutOfStock}
+          onClick={() => {
+            if (isOutOfStock) {
+              return;
+            }
+
             addItem({
               productId: product.id,
               slug: product.slug,
@@ -120,10 +136,10 @@ export function ProductDetail({ product }: { product: Product }) {
               image: product.images[0],
               color,
               size,
-            })
-          }
+            });
+          }}
         >
-          Add to Cart
+          {isOutOfStock ? "Out of Stock" : "Add to Cart"}
         </Button>
 
         <Link

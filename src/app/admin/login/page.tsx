@@ -10,17 +10,25 @@ export default function AdminLoginPage() {
   const adminLogin = useAuthStore((s) => s.adminLogin);
   const router = useRouter();
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError("");
+    setSubmitting(true);
+
     const fd = new FormData(e.currentTarget);
     const email = String(fd.get("email"));
     const password = String(fd.get("password"));
-    if (adminLogin(email, password)) {
+    const result = await adminLogin(email, password);
+
+    if (result.success) {
       router.push("/admin");
     } else {
-      setError("Use admin@waveandco.arch to sign in.");
+      setError(result.error || "Only admin users can access the admin portal.");
     }
+
+    setSubmitting(false);
   };
 
   return (
@@ -36,13 +44,13 @@ export default function AdminLoginPage() {
             label="Email"
             name="email"
             type="email"
-            defaultValue="admin@waveandco.arch"
+            defaultValue="admin@waveandco.com"
             required
           />
           <Input label="Password" name="password" type="password" required />
           {error && <p className="text-xs text-red-600">{error}</p>}
-          <Button type="submit" fullWidth>
-            Enter Portal
+          <Button type="submit" fullWidth disabled={submitting}>
+            {submitting ? "Signing In..." : "Enter Portal"}
           </Button>
         </form>
       </div>

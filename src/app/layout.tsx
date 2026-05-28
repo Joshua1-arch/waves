@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
+import { AppToaster } from "@/components/ui/AppToaster";
 import "./globals.css";
 
 const inter = Inter({
@@ -35,6 +36,7 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body className="min-h-screen bg-brand-cream text-brand-black font-sans antialiased">
         {children}
+        <AppToaster />
       </body>
     </html>
   );

@@ -6,7 +6,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRef } from "react";
 
-export function LifestyleBanner() {
+interface LifestyleBannerProps {
+  eyebrow?: string;
+  headline: string;
+  body: string;
+}
+
+export function LifestyleBanner({
+  eyebrow = "Eye Set on Vision",
+  headline,
+  body,
+}: LifestyleBannerProps) {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -32,14 +42,13 @@ export function LifestyleBanner() {
       >
         <div className="section-shell max-w-xl text-brand-white">
           <p className="text-[10px] uppercase tracking-widest text-brand-gold">
-            Eye Set on Vision
+            {eyebrow}
           </p>
           <h2 className="mt-4 font-serif text-4xl italic md:text-5xl">
-            Crafting Perspective
+            {headline}
           </h2>
           <p className="mt-6 text-sm leading-relaxed text-brand-white/80">
-            Every frame is a study in proportion, material honesty, and the
-            quiet luxury of architectural silence.
+            {body}
           </p>
           <Link
             href="/about"
