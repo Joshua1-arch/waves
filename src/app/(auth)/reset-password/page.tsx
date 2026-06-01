@@ -118,8 +118,8 @@ function ResetPasswordForm() {
             </p>
           )}
           
-          <Button type="submit" fullWidth disabled={loading || !token}>
-            {loading ? "Resetting..." : "Save Password"}
+          <Button type="submit" fullWidth loading={loading} disabled={!token}>
+            Save Password
           </Button>
         </form>
       )}

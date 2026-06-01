@@ -80,7 +80,7 @@ export async function GET() {
       {
         label: "Total Revenue",
         value: displayRevenue,
-        prefix: "$",
+        prefix: "₦",
         suffix: revenueSuffix,
         sub: "All-time earnings accumulated"
       },

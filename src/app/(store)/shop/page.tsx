@@ -286,8 +286,8 @@ export default function ShopPage() {
           className="w-full accent-brand-gold"
         />
         <div className="mt-2 flex justify-between gap-4 text-xs text-brand-black/50">
-          <span>$200</span>
-          <span>${priceMax}+</span>
+          <span>₦200</span>
+          <span>₦{priceMax}+</span>
         </div>
       </div>
 
@@ -345,7 +345,7 @@ export default function ShopPage() {
               <div className="border border-brand-border bg-brand-white px-6 py-14 text-center sm:px-8 sm:py-16">
                 <p className="font-serif text-2xl">No products available</p>
                 <p className="mt-3 text-sm leading-relaxed text-brand-black/60">
-                  Try adjusting your filters or add products to MongoDB.
+                  Try adjusting your filters or check back later.
                 </p>
               </div>
             ) : (

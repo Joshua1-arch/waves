@@ -88,8 +88,8 @@ export default function LoginPage() {
               </Link>
             </div>
             {error && <p className="text-xs text-red-600">{error}</p>}
-            <Button type="submit" fullWidth disabled={loading}>
-              {loading ? "Signing In..." : "Sign In"}
+            <Button type="submit" fullWidth loading={loading}>
+              Sign In
             </Button>
           </form>
 

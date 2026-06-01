@@ -90,8 +90,8 @@ export default function ForgotPasswordPage() {
               {error && <p className="text-xs text-red-600">{error}</p>}
               
               <div className="space-y-4">
-                <Button type="submit" fullWidth disabled={loading}>
-                  {loading ? "Sending..." : "Send Reset Link"}
+                <Button type="submit" fullWidth loading={loading}>
+                  Send Reset Link
                 </Button>
                 <div className="text-center">
                   <Link

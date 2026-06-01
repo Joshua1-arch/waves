@@ -123,8 +123,8 @@ export default function AdminProductsPage() {
         </Link>
       </div>
 
-      <div className="mt-8 border border-brand-border bg-brand-white">
-        <table className="w-full text-left text-sm">
+      <div className="mt-8 overflow-x-auto border border-brand-border bg-brand-white">
+        <table className="w-full min-w-[768px] text-left text-sm">
           <thead>
             <tr className="border-b border-brand-border text-[10px] uppercase tracking-widest text-brand-black/50">
               <th className="px-6 py-4">Product</th>
@@ -145,7 +145,7 @@ export default function AdminProductsPage() {
             ) : products.length === 0 ? (
               <tr>
                 <td className="px-6 py-8 text-brand-black/50" colSpan={6}>
-                  No products found in MongoDB.
+                  No products found.
                 </td>
               </tr>
             ) : (

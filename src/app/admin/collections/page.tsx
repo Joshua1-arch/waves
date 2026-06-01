@@ -152,8 +152,8 @@ export default function AdminCollectionsPage() {
         </Link>
       </div>
 
-      <div className="mt-8 overflow-hidden border border-brand-border bg-brand-white">
-        <table className="w-full text-left text-sm">
+      <div className="mt-8 overflow-x-auto border border-brand-border bg-brand-white">
+        <table className="w-full min-w-[640px] text-left text-sm">
           <thead>
             <tr className="border-b border-brand-border text-[10px] uppercase tracking-widest text-brand-black/50">
               <th className="px-6 py-4">Cover Image</th>

@@ -140,8 +140,8 @@ export default function AdminOrdersPage() {
         </div>
       </div>
 
-      <div className="relative mt-8 border border-brand-border bg-brand-white">
-        <table className="w-full text-left text-sm">
+      <div className="relative mt-8 overflow-x-auto border border-brand-border bg-brand-white">
+        <table className="w-full min-w-[768px] text-left text-sm">
           <thead>
             <tr className="border-b border-brand-border text-[10px] uppercase tracking-widest text-brand-black/50">
               <th className="px-6 py-4">Order ID</th>
