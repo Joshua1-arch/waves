@@ -139,16 +139,8 @@ export default function AdminCustomerProfilePage() {
     }
   }
 
-  async function handleDelete() {
+  async function executeDelete() {
     if (!customer) {
-      return;
-    }
-
-    const confirmed = window.confirm(
-      `Delete ${customer.name}? This will also delete their order history.`,
-    );
-
-    if (!confirmed) {
       return;
     }
 
@@ -178,6 +170,25 @@ export default function AdminCustomerProfilePage() {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  function handleDelete() {
+    if (!customer) {
+      return;
+    }
+
+    toast(`Delete customer "${customer.name}"?`, {
+      description: "This will also delete their order history. This cannot be undone.",
+      action: {
+        label: "Delete",
+        onClick: () => void executeDelete(),
+      },
+      cancel: {
+        label: "Cancel",
+        onClick: () => {},
+      },
+      duration: 10000,
+    });
   }
 
   if (loading) {

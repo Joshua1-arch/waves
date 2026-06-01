@@ -88,15 +88,7 @@ export default function AdminCollectionsPage() {
     };
   }, []);
 
-  async function handleDelete(collection: AdminCollection) {
-    const confirmed = window.confirm(
-      `Delete ${collection.name}? This can only be done when it has no products.`,
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
+  async function executeDelete(collection: AdminCollection) {
     setDeletingId(collection.id);
 
     try {
@@ -126,6 +118,21 @@ export default function AdminCollectionsPage() {
     } finally {
       setDeletingId(null);
     }
+  }
+
+  function handleDelete(collection: AdminCollection) {
+    toast(`Delete collection "${collection.name}"?`, {
+      description: "This can only be done when it has no products.",
+      action: {
+        label: "Delete",
+        onClick: () => void executeDelete(collection),
+      },
+      cancel: {
+        label: "Cancel",
+        onClick: () => {},
+      },
+      duration: 10000,
+    });
   }
 
   return (

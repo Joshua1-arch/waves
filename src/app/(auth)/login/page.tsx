@@ -81,7 +81,7 @@ export default function LoginPage() {
             <div>
               <Input label="Password" name="password" type="password" required />
               <Link
-                href="#"
+                href="/forgot-password"
                 className="mt-2 inline-block text-xs text-brand-gold hover:underline"
               >
                 Forgot Password?

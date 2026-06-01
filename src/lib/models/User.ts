@@ -37,14 +37,27 @@ const userSchema = new Schema(
       default: "active",
       index: true,
     },
+    resetPasswordToken: {
+      type: String,
+      default: null,
+      index: true,
+    },
+    resetPasswordExpires: {
+      type: Date,
+      default: null,
+    },
   },
   {
-    timestamps: { createdAt: true, updatedAt: false },
+    timestamps: { createdAt: true, updatedAt: true },
   },
 );
 
 export type UserDocument = InferSchemaType<typeof userSchema> & {
+  _id: string;
   createdAt: Date;
+  updatedAt: Date;
+  resetPasswordToken?: string | null;
+  resetPasswordExpires?: Date | null;
 };
 
 export const User = models.User || model("User", userSchema);

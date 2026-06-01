@@ -2,12 +2,12 @@
 
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { allOrders } from "@/lib/admin-data";
 import { formatPrice, cn } from "@/lib/utils";
 import type { OrderStatus } from "@/lib/types";
 import { AnimatePresence, motion } from "framer-motion";
 import { Bell, Download, Search, User } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { toast } from "sonner";
 
 const filters: Array<OrderStatus | "all"> = [
   "all",
@@ -18,16 +18,74 @@ const filters: Array<OrderStatus | "all"> = [
 ];
 
 export default function AdminOrdersPage() {
+  const [orders, setOrders] = useState<Array<{
+    id: string;
+    customer: string;
+    email: string;
+    date: string;
+    items: number;
+    total: number;
+    status: OrderStatus;
+  }>>([]);
+  const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<OrderStatus | "all">("all");
-  const [selected, setSelected] = useState<(typeof allOrders)[0] | null>(null);
+  const [selected, setSelected] = useState<typeof orders[0] | null>(null);
+  const [searchInput, setSearchInput] = useState("");
 
-  const filtered = useMemo(
-    () =>
-      status === "all"
-        ? allOrders
-        : allOrders.filter((o) => o.status === status),
-    [status],
-  );
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadOrders() {
+      try {
+        const response = await fetch("/api/admin/orders", {
+          method: "GET",
+          credentials: "same-origin",
+          cache: "no-store",
+        });
+
+        const result = (await response.json()) as {
+          data?: {
+            orders?: typeof orders;
+          };
+          error?: string;
+        };
+
+        if (!response.ok) {
+          throw new Error(result.error ?? "Unable to fetch orders.");
+        }
+
+        if (!cancelled) {
+          setOrders(Array.isArray(result.data?.orders) ? result.data.orders : []);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          toast.error(error instanceof Error ? error.message : "Unable to fetch orders.");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void loadOrders();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const filtered = useMemo(() => {
+    return orders.filter((o) => {
+      const matchesStatus = status === "all" || o.status === status;
+      const matchesSearch =
+        !searchInput ||
+        o.id.toLowerCase().includes(searchInput.toLowerCase()) ||
+        o.customer.toLowerCase().includes(searchInput.toLowerCase()) ||
+        o.email.toLowerCase().includes(searchInput.toLowerCase());
+      return matchesStatus && matchesSearch;
+    });
+  }, [orders, status, searchInput]);
 
   return (
     <div>
@@ -39,6 +97,8 @@ export default function AdminOrdersPage() {
             <input
               type="search"
               placeholder="Search orders..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               className="border border-brand-border py-2 pl-10 pr-4 text-xs uppercase tracking-widest outline-none focus:ring-2 focus:ring-brand-gold/40"
             />
           </div>
@@ -93,27 +153,41 @@ export default function AdminOrdersPage() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((order) => (
-              <tr
-                key={order.id}
-                className="cursor-pointer border-b border-brand-border hover:bg-brand-cream/50"
-                onClick={() => setSelected(order)}
-              >
-                <td className="px-6 py-4 font-medium">{order.id}</td>
-                <td className="px-6 py-4">
-                  <p>{order.customer}</p>
-                  <p className="text-xs text-brand-black/50">{order.email}</p>
-                </td>
-                <td className="px-6 py-4">{order.date}</td>
-                <td className="px-6 py-4">
-                  {String(order.items).padStart(2, "0")}
-                </td>
-                <td className="px-6 py-4">{formatPrice(order.total)}</td>
-                <td className="px-6 py-4">
-                  <Badge status={order.status} />
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-8 text-brand-black/50">
+                  Loading orders...
                 </td>
               </tr>
-            ))}
+            ) : filtered.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-8 text-brand-black/50">
+                  No orders found.
+                </td>
+              </tr>
+            ) : (
+              filtered.map((order) => (
+                <tr
+                  key={order.id}
+                  className="cursor-pointer border-b border-brand-border hover:bg-brand-cream/50"
+                  onClick={() => setSelected(order)}
+                >
+                  <td className="px-6 py-4 font-medium">{order.id}</td>
+                  <td className="px-6 py-4">
+                    <p>{order.customer}</p>
+                    <p className="text-xs text-brand-black/50">{order.email}</p>
+                  </td>
+                  <td className="px-6 py-4">{order.date}</td>
+                  <td className="px-6 py-4">
+                    {String(order.items).padStart(2, "0")}
+                  </td>
+                  <td className="px-6 py-4">{formatPrice(order.total)}</td>
+                  <td className="px-6 py-4">
+                    <Badge status={order.status} />
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

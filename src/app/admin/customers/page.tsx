@@ -198,15 +198,7 @@ export default function AdminCustomersPage() {
     }
   }
 
-  async function handleDelete(customer: CustomerListItem) {
-    const confirmed = window.confirm(
-      `Delete ${customer.name}? This will also delete their order history.`,
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
+  async function executeDelete(customer: CustomerListItem) {
     setSubmittingId(customer.id);
 
     try {
@@ -233,6 +225,21 @@ export default function AdminCustomersPage() {
     } finally {
       setSubmittingId(null);
     }
+  }
+
+  function handleDelete(customer: CustomerListItem) {
+    toast(`Delete customer "${customer.name}"?`, {
+      description: "This will also delete their order history. This cannot be undone.",
+      action: {
+        label: "Delete",
+        onClick: () => void executeDelete(customer),
+      },
+      cancel: {
+        label: "Cancel",
+        onClick: () => {},
+      },
+      duration: 10000,
+    });
   }
 
   return (

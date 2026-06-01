@@ -10,11 +10,17 @@ import {
   YAxis,
 } from "recharts";
 
-export function RevenueChart() {
+export function RevenueChart({
+  data,
+}: {
+  data?: Array<{ week: string; current: number; previous: number }>;
+}) {
+  const chartData = data || revenueChartData;
+
   return (
     <div className="h-64 w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={revenueChartData}>
+        <BarChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(26,26,26,0.08)" />
           <XAxis
             dataKey="week"
