@@ -15,7 +15,7 @@ async function requireAdmin() {
     return null;
   }
 
-  const payload = verifyAuthToken(token);
+  const payload = await verifyAuthToken(token);
 
   return payload.role === "admin" ? payload : null;
 }
@@ -45,6 +45,7 @@ export async function PATCH(
 
     const updates: {
       name?: string;
+      slug?: string;
       description?: string;
       coverImage?: string;
     } = {};
@@ -57,6 +58,11 @@ export async function PATCH(
       }
 
       updates.name = name;
+      updates.slug = name
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
     }
 
     if (typeof body.description === "string") {

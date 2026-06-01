@@ -47,7 +47,7 @@ async function requireAdmin() {
     return null;
   }
 
-  const payload = verifyAuthToken(token);
+  const payload = await verifyAuthToken(token);
 
   return payload.role === "admin" ? payload : null;
 }
@@ -291,6 +291,16 @@ export async function PATCH(
     }
 
     const payload = normalizePayload(body);
+    
+    // Auto-generate slug from name if it is empty/omitted
+    if (!payload.slug && payload.name) {
+      payload.slug = payload.name
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    }
+
     const validationError = await validateFullPayload(payload);
 
     if (validationError) {

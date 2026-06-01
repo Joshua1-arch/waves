@@ -5,7 +5,7 @@ import { verifyAuthToken } from "@/lib/auth-jwt";
 const customerProtectedRoutes = ["/account"];
 const adminProtectedRoutes = ["/admin"];
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isCustomerProtectedRoute = customerProtectedRoutes.some((route) =>
     pathname === route || pathname.startsWith(`${route}/`),
@@ -30,7 +30,7 @@ export function middleware(request: NextRequest) {
     }
 
     try {
-      const payload = verifyAuthToken(adminToken);
+      const payload = await verifyAuthToken(adminToken);
 
       if (payload.role !== "admin") {
         return NextResponse.redirect(new URL("/admin/login", request.url));
@@ -54,14 +54,14 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
 
   if (!token) {
-    return NextResponse.redirect(new URL("/signin", request.url));
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   try {
-    verifyAuthToken(token);
+    await verifyAuthToken(token);
     return NextResponse.next();
   } catch {
-    return NextResponse.redirect(new URL("/signin", request.url));
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 }
 

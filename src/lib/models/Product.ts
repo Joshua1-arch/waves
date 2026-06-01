@@ -84,6 +84,7 @@ const productSchema = new Schema(
   },
   {
     timestamps: { createdAt: true, updatedAt: false },
+    suppressReservedKeysWarning: true,
   },
 );
 

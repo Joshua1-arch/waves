@@ -47,7 +47,7 @@ export async function POST(request: Request) {
       password: hashedPassword,
     });
 
-    const token = signAuthToken({
+    const token = await signAuthToken({
       sub: String(user._id),
       name: user.name,
       email: user.email,

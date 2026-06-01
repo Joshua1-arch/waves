@@ -69,7 +69,7 @@ export async function PATCH(
       return apiError("Unauthorized.", { status: 401 });
     }
 
-    const payload = verifyAuthToken(token);
+    const payload = await verifyAuthToken(token);
 
     if (payload.role !== "admin") {
       return apiError("Unauthorized.", { status: 401 });

@@ -12,7 +12,7 @@ export async function getAuthenticatedUser() {
     return null;
   }
 
-  const payload = verifyAuthToken(token);
+  const payload = await verifyAuthToken(token);
 
   await connectToDatabase();
   const user = await User.findById(payload.sub).select("name email role createdAt");

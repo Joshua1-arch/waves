@@ -38,7 +38,7 @@ async function requireAdmin() {
     return null;
   }
 
-  const payload = verifyAuthToken(token);
+  const payload = await verifyAuthToken(token);
 
   return payload.role === "admin" ? payload : null;
 }

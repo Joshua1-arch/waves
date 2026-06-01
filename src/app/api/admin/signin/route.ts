@@ -29,7 +29,7 @@ export async function POST(request: Request) {
 
     await connectToDatabase();
 
-    const user = await User.findOne({ email }).select("+password role");
+    const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
       return apiError("Invalid credentials.", { status: 401 });
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
       return apiError("Unauthorized admin access.", { status: 403 });
     }
 
-    const token = signAuthToken({
+    const token = await signAuthToken({
       sub: String(user._id),
       name: user.name,
       email: user.email,

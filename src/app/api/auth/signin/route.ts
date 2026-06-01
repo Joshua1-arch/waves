@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     }
 
     console.log("[auth/signin] password matched, signing token");
-    const token = signAuthToken({
+    const token = await signAuthToken({
       sub: String(user._id),
       name: user.name,
       email: user.email,
