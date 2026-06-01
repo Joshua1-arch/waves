@@ -14,7 +14,8 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const icons = {
   LayoutDashboard,
@@ -35,6 +36,7 @@ export function AdminSidebar({
   onMobileClose,
 }: AdminSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, logout } = useAuthStore();
 
   const handleClose = () => {
@@ -127,9 +129,11 @@ export function AdminSidebar({
           </div>
           <button
             type="button"
-            onClick={() => {
-              logout();
+            onClick={async () => {
+              await logout();
               handleClose();
+              toast.success("Signed out successfully.");
+              router.push("/");
             }}
             aria-label="Log out"
             title="Logout"

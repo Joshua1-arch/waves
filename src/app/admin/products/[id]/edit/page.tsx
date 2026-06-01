@@ -369,6 +369,24 @@ export default function AdminEditProductPage() {
     setDescription((current) => `${current}${before}${after}`);
   }
 
+  async function uploadFile(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch("/api/admin/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    const payload = await response.json();
+
+    if (!response.ok) {
+      throw new Error(payload.error ?? "Failed to upload image.");
+    }
+
+    return payload.data.url;
+  }
+
   async function handleFeaturedImageChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
 
@@ -376,11 +394,14 @@ export default function AdminEditProductPage() {
       return;
     }
 
+    const toastId = toast.loading("Uploading featured image to Cloudinary...");
+
     try {
-      const image = await fileToDataUrl(file);
-      setFeaturedImage(image);
+      const url = await uploadFile(file);
+      setFeaturedImage(url);
+      toast.success("Featured image uploaded successfully.", { id: toastId });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Unable to read image.");
+      toast.error(error instanceof Error ? error.message : "Unable to upload image.", { id: toastId });
     }
   }
 
@@ -391,11 +412,14 @@ export default function AdminEditProductPage() {
       return;
     }
 
+    const toastId = toast.loading(`Uploading ${files.length} gallery images to Cloudinary...`);
+
     try {
-      const images = await Promise.all(files.map((file) => fileToDataUrl(file)));
-      setGalleryImages((current) => [...current, ...images]);
+      const urls = await Promise.all(files.map((file) => uploadFile(file)));
+      setGalleryImages((current) => [...current, ...urls]);
+      toast.success("Gallery images uploaded successfully.", { id: toastId });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Unable to read image.");
+      toast.error(error instanceof Error ? error.message : "Unable to upload images.", { id: toastId });
     }
   }
 

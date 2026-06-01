@@ -116,6 +116,24 @@ export default function AdminCollectionFormPage() {
 
   const previewImage = useMemo(() => coverImage, [coverImage]);
 
+  async function uploadFile(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch("/api/admin/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    const payload = await response.json();
+
+    if (!response.ok) {
+      throw new Error(payload.error ?? "Failed to upload image.");
+    }
+
+    return payload.data.url;
+  }
+
   async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
 
@@ -123,11 +141,14 @@ export default function AdminCollectionFormPage() {
       return;
     }
 
+    const toastId = toast.loading("Uploading cover image to Cloudinary...");
+
     try {
-      const dataUrl = await fileToDataUrl(file);
-      setCoverImage(dataUrl);
+      const url = await uploadFile(file);
+      setCoverImage(url);
+      toast.success("Cover image uploaded successfully.", { id: toastId });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Unable to read image.");
+      toast.error(error instanceof Error ? error.message : "Unable to upload image.", { id: toastId });
     }
   }
 
