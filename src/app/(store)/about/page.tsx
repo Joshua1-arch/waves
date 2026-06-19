@@ -1,14 +1,9 @@
 import { AboutPageClient } from "@/components/sections/AboutPageClient";
-import { DEFAULT_PAGE_CONTENT, getPublicContentUrl } from "@/lib/page-content";
+import { DEFAULT_PAGE_CONTENT, getPageContent } from "@/lib/page-content";
 
 export const revalidate = 60;
 
-async function fetchAboutContent(): Promise<{
-  headline: string;
-  subheadline: string;
-  story: string;
-  mission: string;
-}> {
+export default async function AboutPage() {
   const fallback = DEFAULT_PAGE_CONTENT.about as {
     headline: string;
     subheadline: string;
@@ -16,32 +11,17 @@ async function fetchAboutContent(): Promise<{
     mission: string;
   };
 
+  let content = fallback;
+
   try {
-    const response = await fetch(getPublicContentUrl("about"), {
-      next: { revalidate: 60 },
-    });
-
-    if (!response.ok) {
-      return fallback;
-    }
-
-    const payload = (await response.json()) as {
-      data?: {
-        sections?: Record<string, string>;
-      };
-    };
-
-    return {
+    const result = await getPageContent("about");
+    content = {
       ...fallback,
-      ...payload.data?.sections,
+      ...result.sections,
     };
   } catch {
-    return fallback;
+    content = fallback;
   }
-}
-
-export default async function AboutPage() {
-  const content = await fetchAboutContent();
 
   return <AboutPageClient content={content} />;
 }

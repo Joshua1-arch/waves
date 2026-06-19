@@ -27,8 +27,8 @@ export function BestSellers({
   return (
     <section className="section-space bg-brand-cream">
       <div className="section-shell">
-        <div className="mb-10 flex items-center justify-between">
-          <motion.h2 {...SCROLL_REVEAL} className="font-serif text-3xl">
+        <div className="mb-10 flex flex-wrap items-center justify-between gap-3">
+          <motion.h2 {...SCROLL_REVEAL} className="font-serif text-2xl sm:text-3xl">
             {title}
           </motion.h2>
           <div className="flex gap-2">

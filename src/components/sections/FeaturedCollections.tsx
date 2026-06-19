@@ -16,7 +16,7 @@ export function FeaturedCollections({
   return (
     <section className="section-space bg-brand-cream">
       <div className="section-shell">
-        <div className="mb-12 flex items-end justify-between">
+        <div className="mb-12 flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-[10px] uppercase tracking-widest text-brand-gold">
               Curated Series
@@ -33,7 +33,7 @@ export function FeaturedCollections({
           </Link>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
           {collections.map((collection) => (
             <motion.div key={collection.id} {...SCROLL_REVEAL}>
               <Link href={`/shop?collection=${collection.slug}`} className="group block">

@@ -5,7 +5,7 @@ import { Hero } from "@/components/sections/Hero";
 import { LifestyleBanner } from "@/components/sections/LifestyleBanner";
 import { Newsletter } from "@/components/sections/Newsletter";
 import { PageTransition } from "@/components/ui/PageTransition";
-import { DEFAULT_PAGE_CONTENT, getPublicContentUrl } from "@/lib/page-content";
+import { DEFAULT_PAGE_CONTENT, getPageContent } from "@/lib/page-content";
 import { getFeaturedCollections, getFeaturedProducts } from "@/lib/store-data";
 
 export const revalidate = 60;
@@ -14,23 +14,10 @@ async function fetchHomeContent() {
   const fallback = DEFAULT_PAGE_CONTENT.home;
 
   try {
-    const response = await fetch(getPublicContentUrl("home"), {
-      next: { revalidate: 60 },
-    });
-
-    if (!response.ok) {
-      return fallback;
-    }
-
-    const payload = (await response.json()) as {
-      data?: {
-        sections?: Record<string, string>;
-      };
-    };
-
+    const result = await getPageContent("home");
     return {
       ...fallback,
-      ...payload.data?.sections,
+      ...result.sections,
     };
   } catch {
     return fallback;

@@ -5,7 +5,7 @@ export function Footer() {
   return (
     <footer className="bg-brand-black text-brand-white">
       <div className="section-shell section-space">
-        <div className="grid gap-12 lg:grid-cols-3">
+        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-3">
           <div>
             <p className="font-serif text-3xl text-brand-gold">WAVE & CO.</p>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-brand-white/70">

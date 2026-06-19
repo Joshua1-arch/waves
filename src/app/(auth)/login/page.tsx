@@ -60,7 +60,7 @@ export default function LoginPage() {
   return (
     <PageTransition>
       <div className="flex min-h-screen items-center justify-center px-6 py-16">
-        <div className="w-full max-w-md border border-brand-border bg-brand-white px-10 py-14 shadow-card">
+        <div className="w-full max-w-md border border-brand-border bg-brand-white px-6 py-10 shadow-card sm:px-10 sm:py-14">
           <p className="text-center text-xs uppercase tracking-widest">
             Wave & Co
           </p>

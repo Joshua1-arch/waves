@@ -29,7 +29,7 @@ export default function CartPage() {
               {items.map((item) => (
                 <li
                   key={`${item.productId}-${item.color}-${item.size}`}
-                  className="flex gap-6 border-b border-brand-border pb-8"
+                  className="flex flex-wrap gap-4 border-b border-brand-border pb-8 sm:flex-nowrap sm:gap-6"
                 >
                   <div className="relative h-28 w-28 shrink-0 overflow-hidden bg-brand-white">
                     <Image
@@ -40,7 +40,7 @@ export default function CartPage() {
                       sizes="112px"
                     />
                   </div>
-                  <div className="flex-1">
+                  <div className="min-w-0 flex-1">
                     <h2 className="font-serif text-lg">{item.name}</h2>
                     <p className="mt-1 text-xs text-brand-black/50">
                       {item.color} · Size {item.size}
@@ -77,7 +77,7 @@ export default function CartPage() {
                       </button>
                     </div>
                   </div>
-                  <p className="font-serif text-lg">
+                  <p className="w-full text-right font-serif text-lg sm:w-auto">
                     {formatPrice(item.price * item.quantity)}
                   </p>
                 </li>

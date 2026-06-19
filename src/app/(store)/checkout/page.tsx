@@ -24,8 +24,8 @@ export default function CheckoutPage() {
   return (
     <PageTransition>
       <div className="section-shell section-space pt-28">
-        <div className="mb-8 flex items-center justify-between">
-          <nav className="text-[10px] uppercase tracking-widest text-brand-black/40">
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+          <nav className="overflow-x-auto text-[10px] uppercase tracking-widest text-brand-black/40 whitespace-nowrap">
             <Link href="/cart">Cart</Link>
             <span className="mx-2">›</span>
             <span className="text-brand-black">Shipping</span>

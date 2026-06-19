@@ -1,15 +1,9 @@
 import { ContactPageClient } from "@/components/sections/ContactPageClient";
-import { DEFAULT_PAGE_CONTENT, getPublicContentUrl } from "@/lib/page-content";
+import { DEFAULT_PAGE_CONTENT, getPageContent } from "@/lib/page-content";
 
 export const revalidate = 60;
 
-async function fetchContactContent(): Promise<{
-  headline: string;
-  email: string;
-  phone: string;
-  address: string;
-  hours: string;
-}> {
+export default async function ContactPage() {
   const fallback = DEFAULT_PAGE_CONTENT.contact as {
     headline: string;
     email: string;
@@ -18,32 +12,17 @@ async function fetchContactContent(): Promise<{
     hours: string;
   };
 
+  let content = fallback;
+
   try {
-    const response = await fetch(getPublicContentUrl("contact"), {
-      next: { revalidate: 60 },
-    });
-
-    if (!response.ok) {
-      return fallback;
-    }
-
-    const payload = (await response.json()) as {
-      data?: {
-        sections?: Record<string, string>;
-      };
-    };
-
-    return {
+    const result = await getPageContent("contact");
+    content = {
       ...fallback,
-      ...payload.data?.sections,
+      ...result.sections,
     };
   } catch {
-    return fallback;
+    content = fallback;
   }
-}
-
-export default async function ContactPage() {
-  const content = await fetchContactContent();
 
   return <ContactPageClient content={content} />;
 }

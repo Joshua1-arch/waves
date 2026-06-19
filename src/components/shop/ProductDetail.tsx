@@ -19,7 +19,7 @@ export function ProductDetail({ product }: { product: Product }) {
     <div className="grid gap-12 lg:grid-cols-5">
       <div className="lg:col-span-3">
         <div className="grid gap-4 md:grid-cols-[80px_1fr]">
-          <div className="flex flex-row gap-2 md:flex-col">
+          <div className="flex flex-row gap-2 overflow-x-auto pb-1 md:flex-col md:overflow-x-visible md:pb-0">
             {product.images.map((img, i) => (
               <button
                 key={img}
@@ -64,7 +64,7 @@ export function ProductDetail({ product }: { product: Product }) {
         <p className="text-[10px] uppercase tracking-widest text-brand-gold">
           {product.collection ?? "Wave & Co."}
         </p>
-        <h1 className="mt-2 font-serif text-4xl">{product.name}</h1>
+        <h1 className="mt-2 font-serif text-3xl md:text-4xl">{product.name}</h1>
         <p className="mt-4 text-2xl text-brand-gold">
           {formatPrice(product.price)}
         </p>

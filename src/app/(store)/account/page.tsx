@@ -155,7 +155,7 @@ export default function AccountPage() {
     <div className="bg-brand-cream pb-20 pt-28">
       <section className="section-shell">
         <div className="border border-brand-border bg-brand-white">
-          <div className="border-b border-brand-border px-8 py-8">
+          <div className="border-b border-brand-border px-4 py-6 sm:px-8 sm:py-8">
             <p className="text-[10px] uppercase tracking-[0.3em] text-brand-black/45">
               My Account
             </p>
@@ -172,7 +172,7 @@ export default function AccountPage() {
                 type="button"
                 onClick={() => changeTab(tab.id)}
                 className={cn(
-                  "border-r border-brand-border px-6 py-4 text-[10px] uppercase tracking-[0.25em] transition-colors last:border-r-0",
+                  "flex-1 border-r border-brand-border px-3 py-4 text-[10px] uppercase tracking-[0.25em] transition-colors last:border-r-0 sm:flex-none sm:px-6",
                   activeTab === tab.id
                     ? "bg-brand-black text-brand-white"
                     : "bg-brand-white text-brand-black/60 hover:text-brand-black",
@@ -184,7 +184,7 @@ export default function AccountPage() {
           </div>
 
           {activeTab === "profile" ? (
-            <div className="grid gap-8 px-8 py-10 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="grid gap-8 px-4 py-8 sm:px-8 sm:py-10 lg:grid-cols-[1.1fr_0.9fr]">
               <div className="space-y-6">
                 <div className="border border-brand-border px-6 py-5">
                   <p className="text-[10px] uppercase tracking-[0.25em] text-brand-black/45">
@@ -262,7 +262,7 @@ export default function AccountPage() {
               </div>
             </div>
           ) : (
-            <div className="px-8 py-10">
+            <div className="px-4 py-8 sm:px-8 sm:py-10">
               {ordersLoading ? (
                 <p className="text-sm text-brand-black/60">
                   Loading order history...
@@ -302,7 +302,7 @@ export default function AccountPage() {
                           </p>
                         </div>
                       </div>
-                      <div className="mt-5 grid gap-6 lg:grid-cols-[1fr_auto_auto]">
+                      <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-[1fr_auto_auto]">
                         <div>
                           <p className="text-[10px] uppercase tracking-[0.25em] text-brand-black/45">
                             Items Ordered

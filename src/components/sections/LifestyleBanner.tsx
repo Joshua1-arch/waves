@@ -44,7 +44,7 @@ export function LifestyleBanner({
           <p className="text-[10px] uppercase tracking-widest text-brand-gold">
             {eyebrow}
           </p>
-          <h2 className="mt-4 font-serif text-4xl italic md:text-5xl">
+          <h2 className="mt-4 font-serif text-3xl italic sm:text-4xl md:text-5xl">
             {headline}
           </h2>
           <p className="mt-6 text-sm leading-relaxed text-brand-white/80">
