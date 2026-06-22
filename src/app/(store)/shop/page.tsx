@@ -76,10 +76,22 @@ export default function ShopPage() {
   const [colour, setColour] = useState<string>("all");
   const [priceMax, setPriceMax] = useState(1200);
   const [filtersOpen, setFiltersOpen] = useState(false);
+ 
+  const minPriceLimit = useMemo(() => {
+    if (products.length === 0) return 200;
+    const minVal = Math.min(...products.map((p) => p.price));
+    return Math.floor(minVal / 100) * 100;
+  }, [products]);
+
+  const maxPriceLimit = useMemo(() => {
+    if (products.length === 0) return 1200;
+    const maxVal = Math.max(...products.map((p) => p.price));
+    return Math.ceil(maxVal / 100) * 100;
+  }, [products]);
 
   useEffect(() => {
     let cancelled = false;
-
+ 
     async function loadShopData() {
       try {
         const [productsResponse, categoryTaxonomies, materialTaxonomies] = await Promise.all([
@@ -91,22 +103,28 @@ export default function ShopPage() {
           fetchTaxonomies("category"),
           fetchTaxonomies("material"),
         ]);
-
+ 
         const result = (await productsResponse.json()) as {
           data?: {
             products?: Product[];
           };
           error?: string;
         };
-
+ 
         if (!productsResponse.ok) {
           throw new Error(result.error ?? "Unable to fetch products.");
         }
-
+ 
         if (!cancelled) {
-          setProducts(Array.isArray(result.data?.products) ? result.data.products : []);
+          const fetchedProducts = Array.isArray(result.data?.products) ? result.data.products : [];
+          setProducts(fetchedProducts);
           setCategories(categoryTaxonomies);
           setMaterialsData(materialTaxonomies);
+          
+          if (fetchedProducts.length > 0) {
+            const maxVal = Math.max(...fetchedProducts.map((p) => p.price));
+            setPriceMax(Math.ceil(maxVal / 100) * 100);
+          }
         }
       } catch {
         if (!cancelled) {
@@ -120,27 +138,27 @@ export default function ShopPage() {
         }
       }
     }
-
+ 
     void loadShopData();
-
+ 
     return () => {
       cancelled = true;
     };
   }, []);
-
+ 
   useEffect(() => {
     if (!filtersOpen) {
       document.body.style.overflow = "";
       return;
     }
-
+ 
     document.body.style.overflow = "hidden";
-
+ 
     return () => {
       document.body.style.overflow = "";
     };
   }, [filtersOpen]);
-
+ 
   const frameTypes = useMemo(
     () => [
       { label: "All", value: "all" },
@@ -151,7 +169,7 @@ export default function ShopPage() {
     ],
     [categories],
   );
-
+ 
   const materials = useMemo(
     () => [
       { label: "All", value: "all" },
@@ -162,7 +180,7 @@ export default function ShopPage() {
     ],
     [materialsData],
   );
-
+ 
   const colours = useMemo(
     () => [
       { label: "All", value: "all" },
@@ -174,7 +192,7 @@ export default function ShopPage() {
     ],
     [products],
   );
-
+ 
   const filtered = useMemo(
     () =>
       products.filter((p) => {
@@ -188,14 +206,14 @@ export default function ShopPage() {
       }),
     [colour, frame, material, priceMax, products],
   );
-
-  const activeFilterCount = [frame, material, colour].filter((value) => value !== "all").length + (priceMax < 1200 ? 1 : 0);
-
+ 
+  const activeFilterCount = [frame, material, colour].filter((value) => value !== "all").length + (priceMax < maxPriceLimit ? 1 : 0);
+ 
   const resetFilters = () => {
     setFrame("all");
     setMaterial("all");
     setColour("all");
-    setPriceMax(1200);
+    setPriceMax(maxPriceLimit);
   };
 
   const closeFilters = () => setFiltersOpen(false);
@@ -279,15 +297,15 @@ export default function ShopPage() {
         <p className="mb-4 text-[10px] uppercase tracking-widest">Price Range</p>
         <input
           type="range"
-          min={200}
-          max={1200}
+          min={minPriceLimit}
+          max={maxPriceLimit}
           value={priceMax}
           onChange={(e) => setPriceMax(Number(e.target.value))}
           className="w-full accent-brand-gold"
         />
         <div className="mt-2 flex justify-between gap-4 text-xs text-brand-black/50">
-          <span>₦200</span>
-          <span>₦{priceMax}+</span>
+          <span>₦{minPriceLimit}</span>
+          <span>₦{priceMax}{priceMax >= maxPriceLimit ? "+" : ""}</span>
         </div>
       </div>
 

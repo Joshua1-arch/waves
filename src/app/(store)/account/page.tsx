@@ -21,6 +21,20 @@ interface AccountOrder {
   }>;
   total: number;
   status: "processing" | "shipped" | "delivered" | "cancelled";
+  shippingAddress?: {
+    name: string;
+    phone: string;
+    email: string;
+    address: string;
+    city: string;
+    state: string;
+    country: string;
+  };
+  shippingCost?: number;
+  shippingCourier?: string;
+  shipmentId?: string;
+  trackingCode?: string;
+  paymentStatus?: "initiated" | "success" | "failed";
 }
 
 const tabs = [
@@ -334,6 +348,74 @@ export default function AccountPage() {
                           <p className="mt-3 text-sm text-brand-black/70">
                             {formatPrice(order.total)}
                           </p>
+                        </div>
+                      </div>
+
+                      {/* Shipping & Delivery Details */}
+                      <div className="mt-6 border-t border-brand-border/60 pt-6">
+                        <div className="grid gap-6 md:grid-cols-2">
+                          <div>
+                            <h4 className="text-[10px] uppercase tracking-[0.25em] text-brand-black/45 mb-3 font-semibold">
+                              Shipping Address
+                            </h4>
+                            <div className="text-sm text-brand-black/70 space-y-1">
+                              {order.shippingAddress ? (
+                                <>
+                                  <p className="font-medium text-brand-black">{order.shippingAddress.name}</p>
+                                  <p>{order.shippingAddress.address}</p>
+                                  <p>{order.shippingAddress.city}, {order.shippingAddress.state}</p>
+                                  <p className="text-xs text-brand-black/50 mt-1">Phone: {order.shippingAddress.phone}</p>
+                                </>
+                              ) : (
+                                <p className="italic text-brand-black/45">No shipping address recorded</p>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col justify-between">
+                            <div>
+                              <h4 className="text-[10px] uppercase tracking-[0.25em] text-brand-black/45 mb-3 font-semibold">
+                                Logistics Status
+                              </h4>
+                              <div className="space-y-2">
+                                {order.trackingCode ? (
+                                  <>
+                                    <div className="flex items-center gap-2">
+                                      <span className="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+                                      <span className="text-sm font-medium text-brand-black">
+                                        Dispatched via {order.shippingCourier || "Express Courier"}
+                                      </span>
+                                    </div>
+                                    <p className="text-xs text-brand-black/60">
+                                      Tracking Reference: <span className="font-mono text-brand-black font-medium">{order.trackingCode}</span>
+                                    </p>
+                                  </>
+                                ) : (
+                                  <div className="flex items-center gap-2">
+                                    <span className="inline-block w-2 h-2 rounded-full bg-amber-500"></span>
+                                    <span className="text-sm font-medium text-brand-black">
+                                      {order.paymentStatus === "success" 
+                                        ? "Processing shipment / Preparing dispatch"
+                                        : "Awaiting payment confirmation"}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            {order.trackingCode && (
+                              <div className="mt-4">
+                                <a
+                                  href={`https://trackshipment.shipbubble.com/shipment/${order.trackingCode}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center justify-center bg-brand-black hover:bg-brand-black/90 text-brand-white px-5 py-2.5 text-xs font-semibold uppercase tracking-wider transition-colors duration-300"
+                                >
+                                  Track Shipment
+                                </a>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>

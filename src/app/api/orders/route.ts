@@ -32,6 +32,12 @@ export async function GET(request: Request) {
         items: order.items,
         total: order.total,
         status: order.status,
+        shippingAddress: order.shippingAddress,
+        shippingCost: order.shippingCost,
+        shippingCourier: order.shippingCourier,
+        shipmentId: order.shipmentId,
+        trackingCode: order.trackingCode,
+        paymentStatus: order.paymentStatus,
       })),
     });
   } catch {
