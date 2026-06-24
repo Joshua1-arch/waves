@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { PageTransition } from "@/components/ui/PageTransition";
+import { cn, validatePassword } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, Suspense } from "react";
@@ -16,6 +17,7 @@ function ResetPasswordForm() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [password, setPassword] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -23,20 +25,21 @@ function ResetPasswordForm() {
     setSuccess("");
 
     const fd = new FormData(e.currentTarget);
-    const password = String(fd.get("password") ?? "");
+    const passwordInput = String(fd.get("password") ?? "");
     const confirmPassword = String(fd.get("confirmPassword") ?? "");
 
-    if (!password || !confirmPassword) {
+    if (!passwordInput || !confirmPassword) {
       setError("Please fill in all fields.");
       return;
     }
 
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters long.");
+    const check = validatePassword(passwordInput);
+    if (!check.valid) {
+      setError(check.error || "Password does not meet requirements.");
       return;
     }
 
-    if (password !== confirmPassword) {
+    if (passwordInput !== confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
@@ -54,7 +57,7 @@ function ResetPasswordForm() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ token, password }),
+        body: JSON.stringify({ token, password: passwordInput }),
       });
 
       const result = await response.json();
@@ -77,6 +80,13 @@ function ResetPasswordForm() {
     }
   };
 
+  const requirements = [
+    { met: password.length >= 6, label: "6+ characters" },
+    { met: /[A-Z]/.test(password), label: "Block Letter (A-Z)" },
+    { met: /[0-9]/.test(password), label: "One number (0-9)" },
+    { met: /[^A-Za-z0-9]/.test(password), label: "Special symbol" },
+  ];
+
   return (
     <div className="w-full max-w-md border border-brand-border bg-brand-white px-10 py-14 shadow-card">
       <p className="text-center text-xs uppercase tracking-widest text-brand-black/50">
@@ -98,12 +108,34 @@ function ResetPasswordForm() {
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="mt-10 space-y-8">
-          <Input
-            label="New Password"
-            name="password"
-            type="password"
-            required
-          />
+          <div>
+            <Input
+              label="New Password"
+              name="password"
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            {password && (
+              <div className="grid grid-cols-2 gap-2 mt-3 p-3 bg-brand-cream border border-brand-border text-[9px] uppercase tracking-widest">
+                {requirements.map((req, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <span className={cn(
+                      "w-1.5 h-1.5 rounded-full transition-colors",
+                      req.met ? "bg-emerald-600" : "bg-brand-black/20"
+                    )} />
+                    <span className={cn(
+                      "transition-colors",
+                      req.met ? "text-brand-black font-semibold" : "text-brand-black/45"
+                    )}>
+                      {req.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           <Input
             label="Confirm Password"
             name="confirmPassword"
@@ -118,8 +150,8 @@ function ResetPasswordForm() {
             </p>
           )}
           
-          <Button type="submit" fullWidth loading={loading} disabled={!token}>
-            Save Password
+          <Button type="submit" fullWidth disabled={loading || !token}>
+            {loading ? "Saving Password..." : "Save Password"}
           </Button>
         </form>
       )}

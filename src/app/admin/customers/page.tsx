@@ -14,6 +14,7 @@ interface CustomerListItem {
   orderCount: number;
   initials: string;
   status: "active" | "suspended";
+  emailVerified: boolean;
 }
 
 function formatJoinDate(value: string) {
@@ -26,13 +27,14 @@ function formatJoinDate(value: string) {
 
 function exportCustomersCsv(customers: CustomerListItem[]) {
   const rows = [
-    ["Name", "Email", "Join Date", "Order Count", "Status"],
+    ["Name", "Email", "Join Date", "Order Count", "Status", "Email Verified"],
     ...customers.map((customer) => [
       customer.name,
       customer.email,
       formatJoinDate(customer.joinDate),
       String(customer.orderCount),
       customer.status,
+      customer.emailVerified ? "Yes" : "No",
     ]),
   ];
 
@@ -76,6 +78,9 @@ function LoadingRows() {
       </td>
       <td className="px-6 py-4">
         <div className="h-4 w-24 bg-brand-cream" />
+      </td>
+      <td className="px-6 py-4">
+        <div className="h-4 w-20 bg-brand-cream" />
       </td>
       <td className="px-6 py-4">
         <div className="h-8 w-24 bg-brand-cream" />
@@ -283,6 +288,7 @@ export default function AdminCustomersPage() {
               <th className="px-6 py-4">Join Date</th>
               <th className="px-6 py-4">Orders</th>
               <th className="px-6 py-4">Status</th>
+              <th className="px-6 py-4">Email</th>
               <th className="px-6 py-4">Action</th>
             </tr>
           </thead>
@@ -324,6 +330,23 @@ export default function AdminCustomersPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
+                      {customer.emailVerified ? (
+                        <span className="inline-flex items-center gap-1 border border-emerald-200 bg-emerald-50 px-3 py-1 text-[10px] uppercase tracking-widest text-emerald-700">
+                          <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                          Verified
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 border border-amber-200 bg-amber-50 px-3 py-1 text-[10px] uppercase tracking-widest text-amber-700">
+                          <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v4m0 4h.01M12 3a9 9 0 100 18A9 9 0 0012 3z" />
+                          </svg>
+                          Pending
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
                       <div className="flex flex-wrap items-center gap-3">
                         <Link
                           href={`/admin/customers/${customer.id}`}
@@ -355,7 +378,7 @@ export default function AdminCustomersPage() {
             ) : (
               <tr>
                 <td
-                  colSpan={6}
+                  colSpan={7}
                   className="px-6 py-16 text-center text-sm text-brand-black/60"
                 >
                   No customers found.

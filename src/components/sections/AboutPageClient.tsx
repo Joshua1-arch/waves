@@ -173,11 +173,12 @@ export function AboutPageClient({ content }: AboutPageClientProps) {
               src: "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?auto=format&fit=crop&w=1200&q=80",
               alt: "Clean black eyewear studio photo",
             },
-          ].map((img) => (
+          ].map((img, i) => (
             <motion.div
               key={img.src}
               className="relative aspect-[3/4] overflow-hidden"
               {...SCROLL_REVEAL}
+              transition={{ ...SCROLL_REVEAL.transition, delay: i * 0.12 }}
             >
               <Image
                 src={img.src}

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/Button";
 import type { Product } from "@/lib/types";
 import { cn, formatPrice } from "@/lib/utils";
 import { useCartStore } from "@/store/cart";
+import { ChevronLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -26,10 +27,10 @@ export function ProductDetail({ product }: { product: Product }) {
                 type="button"
                 onClick={() => setActiveImage(i)}
                 className={cn(
-                  "relative aspect-square w-16 overflow-hidden border md:w-20",
+                  "relative aspect-square w-16 shrink-0 overflow-hidden border transition-colors md:w-20",
                   activeImage === i
                     ? "border-brand-gold"
-                    : "border-brand-border",
+                    : "border-brand-border hover:border-brand-black/30",
                 )}
               >
                 <Image
@@ -78,22 +79,24 @@ export function ProductDetail({ product }: { product: Product }) {
         </p>
 
         <div className="mt-8">
-          <p className="mb-3 text-[10px] uppercase tracking-widest">Colour</p>
-          <div className="flex flex-wrap gap-2">
+          <p className="mb-3 text-[10px] uppercase tracking-widest">
+            Colour: <span className="font-medium text-brand-black">{color}</span>
+          </p>
+          <div className="flex flex-wrap gap-3">
             {product.colors.map((c) => (
               <button
                 key={c}
                 type="button"
                 onClick={() => setColor(c)}
                 className={cn(
-                  "border px-4 py-2 text-xs uppercase tracking-wider",
+                  "h-8 w-8 rounded-full transition-all relative border border-brand-black/10",
                   color === c
-                    ? "border-brand-gold bg-brand-gold/10"
-                    : "border-brand-border",
+                    ? "ring-2 ring-brand-gold ring-offset-2 ring-offset-brand-cream"
+                    : "hover:scale-105"
                 )}
-              >
-                {c}
-              </button>
+                style={{ backgroundColor: colorToHex(c) }}
+                title={c}
+              />
             ))}
           </div>
         </div>
@@ -144,11 +147,39 @@ export function ProductDetail({ product }: { product: Product }) {
 
         <Link
           href="/shop"
-          className="mt-4 block text-center text-xs uppercase tracking-widest text-brand-black/50 hover:text-brand-gold"
+          className="mt-4 inline-flex items-center gap-1.5 text-xs uppercase tracking-widest text-brand-black/50 transition-colors hover:text-brand-gold"
         >
-          ← Back to Shop
+          <ChevronLeft className="h-3 w-3" strokeWidth={2} />
+          Back to Shop
         </Link>
       </div>
     </div>
   );
+}
+
+function colorToHex(color: string): string {
+  const map: Record<string, string> = {
+    black: "#1a1a1a",
+    gold: "#C9A96E",
+    white: "#FAF8F5",
+    grey: "#9ca3af",
+    gray: "#9ca3af",
+    silver: "#d1d5db",
+    brown: "#92400e",
+    tortoise: "#7c3200",
+    green: "#065f46",
+    blue: "#1e40af",
+    red: "#991b1b",
+    burgundy: "#881337",
+    clear: "#e5e7eb",
+    crystal: "#dbeafe",
+    rose: "#fda4af",
+    nude: "#f5d0a9",
+    beige: "#EDE8E3",
+  };
+  const normalized = color.trim().toLowerCase();
+  for (const [key, hex] of Object.entries(map)) {
+    if (normalized.includes(key)) return hex;
+  }
+  return "#EDE8E3";
 }

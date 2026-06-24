@@ -5,6 +5,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { User } from "@/lib/models/User";
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
+import { sanitizeNoSql, validatePassword } from "@/lib/utils";
 
 async function requireAdmin() {
   const cookieStore = await cookies();
@@ -27,15 +28,18 @@ export async function POST(request: Request) {
       return apiError("Unauthorized.", { status: 401 });
     }
 
-    const body = await request.json();
-    const { currentPassword, newPassword } = body;
+    const rawBody = await request.json();
+    const body = sanitizeNoSql(rawBody);
+    const currentPassword = String(body.currentPassword ?? "");
+    const newPassword = String(body.newPassword ?? "");
 
     if (!currentPassword || !newPassword) {
       return apiError("Current password and new password are required.", { status: 400 });
     }
 
-    if (newPassword.length < 8) {
-      return apiError("New password must be at least 8 characters long.", { status: 400 });
+    const passwordCheck = validatePassword(newPassword);
+    if (!passwordCheck.valid) {
+      return apiError(passwordCheck.error || "Invalid password.", { status: 400 });
     }
 
     await connectToDatabase();

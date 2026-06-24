@@ -69,3 +69,75 @@
     display: none;
   }
 }
+
+/* ─── Marquee / ticker ──────────────────────────────────────────────── */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.marquee-track {
+  animation: marquee 32s linear infinite;
+  will-change: transform;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* ─── Shimmer skeleton ──────────────────────────────────────────────── */
+@keyframes shimmer {
+  from { background-position: -200% center; }
+  to   { background-position:  200% center; }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-brand-cream) 25%,
+    color-mix(in srgb, var(--color-brand-cream) 60%, white) 50%,
+    var(--color-brand-cream) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+/* ─── 3-D card perspective wrapper ──────────────────────────────────── */
+.card-3d {
+  transform-style: preserve-3d;
+  perspective: 900px;
+}
+
+/* ─── Range input thumb (cross-browser gold) ─────────────────────────── */
+input[type="range"] {
+  -webkit-appearance: none;
+  height: 2px;
+  background: transparent;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 2px;
+  background: var(--color-brand-border);
+  border-radius: 9999px;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -6px;
+  border-radius: 9999px;
+  background: var(--color-brand-gold);
+  border: 2px solid white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+  transition: transform 0.15s ease;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.18);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: var(--color-brand-gold);
+  border: 2px solid white;
+}

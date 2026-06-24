@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import useSWR from "swr";
 
 interface AccountOrder {
   id: string;
@@ -42,6 +43,16 @@ const tabs = [
   { id: "orders", label: "Order History" },
 ] as const;
 
+const fetcher = async (url: string) => {
+  const res = await fetch(url, { credentials: "include" });
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.error || "Failed to fetch orders");
+  }
+  const result = await res.json();
+  return result.data.orders as AccountOrder[];
+};
+
 export default function AccountPage() {
   const router = useRouter();
   const { user, initialized } = useUser();
@@ -52,8 +63,18 @@ export default function AccountPage() {
   const [draftName, setDraftName] = useState("");
   const [saving, setSaving] = useState(false);
   const [profileError, setProfileError] = useState("");
-  const [orders, setOrders] = useState<AccountOrder[]>([]);
-  const [ordersLoading, setOrdersLoading] = useState(true);
+
+  const { data: swrOrders, error: swrError, isLoading: swrLoading } = useSWR(
+    initialized && user ? `/api/orders?userId=${user.id}` : null,
+    fetcher,
+    {
+      revalidateOnFocus: true,
+      dedupingInterval: 5000,
+    }
+  );
+
+  const orders = swrOrders || [];
+  const ordersLoading = swrLoading && !swrOrders;
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -72,37 +93,6 @@ export default function AccountPage() {
       window.removeEventListener("popstate", syncTabFromUrl);
     };
   }, []);
-
-  useEffect(() => {
-    if (!initialized || !user) {
-      return;
-    }
-
-    const loadOrders = async () => {
-      setOrdersLoading(true);
-
-      try {
-        const response = await fetch(`/api/orders?userId=${user.id}`, {
-          credentials: "include",
-          cache: "no-store",
-        });
-        const result = await response.json();
-
-        if (!response.ok) {
-          setOrders([]);
-          return;
-        }
-
-        setOrders(result.data.orders);
-      } catch {
-        setOrders([]);
-      } finally {
-        setOrdersLoading(false);
-      }
-    };
-
-    void loadOrders();
-  }, [initialized, user]);
 
   const joinedDate = user?.createdAt
     ? new Intl.DateTimeFormat("en-US", {

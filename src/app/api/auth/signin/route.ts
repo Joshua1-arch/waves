@@ -48,6 +48,16 @@ export async function POST(request: Request) {
       return apiError("Invalid credentials.", { status: 401 });
     }
 
+    // Hard gate — only customers must verify their email before signing in.
+    // Admin accounts are pre-provisioned and bypass this check.
+    if (user.role !== "admin" && !user.emailVerified) {
+      console.log("[auth/signin] email not verified for:", email);
+      return apiError(
+        "Please verify your email address before signing in. Check your inbox for a confirmation link.",
+        { status: 403, details: { requiresVerification: true } }
+      );
+    }
+
     console.log("[auth/signin] password matched, signing token");
     const token = await signAuthToken({
       sub: String(user._id),

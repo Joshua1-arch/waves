@@ -3,17 +3,22 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { User } from "@/lib/models/User";
 import bcrypt from "bcryptjs";
 
+import { sanitizeNoSql, validatePassword } from "@/lib/utils";
+
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { token, password } = body;
+    const rawBody = await request.json();
+    const body = sanitizeNoSql(rawBody);
+    const token = String(body.token ?? "").trim();
+    const password = String(body.password ?? "");
 
     if (!token || !password) {
       return apiError("Token and password are required.", { status: 400 });
     }
 
-    if (password.length < 8) {
-      return apiError("Password must be at least 8 characters long.", { status: 400 });
+    const passwordCheck = validatePassword(password);
+    if (!passwordCheck.valid) {
+      return apiError(passwordCheck.error || "Invalid password.", { status: 400 });
     }
 
     await connectToDatabase();

@@ -42,8 +42,12 @@ export function BrandValues() {
           </motion.div>
 
           <div className="grid gap-10 sm:grid-cols-3 lg:grid-cols-1">
-            {values.map((value) => (
-              <motion.div key={value.title} {...SCROLL_REVEAL}>
+            {values.map((value, i) => (
+              <motion.div
+                key={value.title}
+                {...SCROLL_REVEAL}
+                transition={{ ...SCROLL_REVEAL.transition, delay: i * 0.12 }}
+              >
                 <value.icon
                   className="mb-4 h-5 w-5 text-brand-gold"
                   strokeWidth={1.5}

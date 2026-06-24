@@ -12,6 +12,7 @@ interface CustomerRecord {
   email: string;
   createdAt: Date;
   status?: "active" | "suspended";
+  emailVerified?: boolean;
 }
 
 function isCustomerRecord(value: unknown): value is CustomerRecord {
@@ -77,7 +78,7 @@ export async function GET(request: Request) {
     };
 
     const customerDocuments = await User.find(query)
-      .select("name email createdAt status")
+      .select("name email createdAt status emailVerified")
       .sort({ createdAt: -1 })
       .lean();
 
@@ -111,6 +112,7 @@ export async function GET(request: Request) {
         orderCount: orderCountMap.get(String(customer._id)) ?? 0,
         initials: getInitials(customer.name),
         status: customer.status ?? "active",
+        emailVerified: customer.emailVerified ?? false,
       })),
     });
   } catch {

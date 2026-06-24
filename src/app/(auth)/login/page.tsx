@@ -43,6 +43,13 @@ export default function LoginPage() {
       const result = await response.json();
 
       if (!response.ok) {
+        // Special case: account exists but email not yet verified
+        if (response.status === 403 && result.details?.requiresVerification) {
+          setError(
+            "Your email address has not been verified. Please check your inbox for the confirmation link."
+          );
+          return;
+        }
         setError(result.error || "Invalid credentials.");
         return;
       }

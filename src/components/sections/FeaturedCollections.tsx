@@ -13,6 +13,9 @@ export function FeaturedCollections({
   title: string;
   collections: CollectionViewModel[];
 }) {
+  // Don't render the section when there are no collections
+  if (collections.length === 0) return null;
+
   return (
     <section className="section-space bg-brand-cream">
       <div className="section-shell">
@@ -21,9 +24,7 @@ export function FeaturedCollections({
             <p className="text-[10px] uppercase tracking-widest text-brand-gold">
               Curated Series
             </p>
-            <h2 className="mt-2 font-serif text-3xl md:text-4xl">
-              {title}
-            </h2>
+            <h2 className="mt-2 font-serif text-3xl md:text-4xl">{title}</h2>
           </div>
           <Link
             href="/shop"
@@ -43,7 +44,7 @@ export function FeaturedCollections({
                       src={collection.coverImage}
                       alt={`${collection.name} collection — Wave & Co.`}
                       fill
-                      className="object-cover transition-transform duration-400 group-hover:scale-105"
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
                       sizes="(max-width:768px) 100vw, 33vw"
                     />
                   ) : (
